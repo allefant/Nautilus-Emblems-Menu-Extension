@@ -121,7 +121,7 @@ class EmblemsMenu(GObject.GObject, Nautilus.MenuProvider):
                     row = row[len("metadata::emblems:"):].strip("[ ]")
                     emblems.extend([x.strip() for x in
                         row.split(",")])
-            emblems.append(emblem)
+            emblems.append(emblem[len("emblem-"):])
             print(emblems)
             p = subprocess.Popen(["gvfs-set-attribute", "-t", "stringv",
                 f.get_name(), "metadata::emblems"] + emblems)
