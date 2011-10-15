@@ -30,7 +30,7 @@
 #
 
 from gi.repository import Nautilus, GObject
-import os, glob, subprocess
+import os, glob, subprocess, urllib
 
 free_desktop_emblems = [
     "emblem-default",
@@ -109,8 +109,9 @@ class EmblemsMenu(GObject.GObject, Nautilus.MenuProvider):
             f.add_emblem(emblem)
             # TODO: The above is not permanent? Why? Using GVFS instead
             # seems to work.
+            path = urllib.unquote(f.get_uri()[7:])
             p = subprocess.Popen(["gvfs-info", "-a",
-                "metadata::emblems", f.get_name()],
+                "metadata::emblems", path],
             stdout = subprocess.PIPE)
             out, err = p.communicate()
             print(out)
@@ -124,12 +125,12 @@ class EmblemsMenu(GObject.GObject, Nautilus.MenuProvider):
             emblems.append(emblem[len("emblem-"):])
             print(emblems)
             p = subprocess.Popen(["gvfs-set-attribute", "-t", "stringv",
-                f.get_name(), "metadata::emblems"] + emblems)
+                path, "metadata::emblems"] + emblems)
             p.communicate()
 
     def clear_cb(self, menu, files):
         # TODO: How do I use Nautilus instead of gvfs?
         for f in files:
             p = subprocess.Popen(["gvfs-set-attribute", "-t", "unset",
-                f.get_name(), "metadata::emblems"])
+                urllib.unquote(f.get_uri()[7:]), "metadata::emblems"])
             p.communicate()
