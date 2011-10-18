@@ -1,19 +1,10 @@
 # By ubuntu@allefant.com October 2011. Do with it what you want.
 #
-# I have close to 50 custom emblems and 1000ds of files with emblems
-# for various purposes. In short I can't live without emblems. If
-# Nautilus is going to completely remove them it won't be the end of
-# the world, I can make a script which syncs them to KDE/Nepomuk tags.
-# However Dolphin doesn't display icons for its tags on the files so it
-# doesn't compare to Nautilus. (Nautilus and specifically emblems is
-# the only reason I'm staying with Gnome.)
+# Ubuntu Oneiric with Nautilus 3 was a very sad day for me - any means
+# to modify my emblems were gone.
 #
-# So in short, Ubuntu Oneiric with Nautilus 3 was a very sad day for me
-# with my emblems gone.
-#
-# This script is a bit of a stop-gap measure so I can keep on doing my
-# work - it adds a menu entry with the same functionality as the
-# removed side pane from the old Nautilus.
+# This script is a bit of a stop-gap measure - it adds a menu entry with
+# the same functionality as the removed side pane from the old Nautilus.
 #
 # Drop this file into /usr/share/nautilus-python/extensions/ and
 # Nautilus should now have that extra menu item in the context menu of

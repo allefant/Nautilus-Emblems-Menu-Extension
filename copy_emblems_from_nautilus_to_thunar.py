@@ -8,7 +8,7 @@ Dependencies:
 - gvfs-info
 - tdbtool
 
-The script will then simply walk the given directory (ontionally
+The script will then simply walk the given directory (optionally
 recursively), call gvfs-info on each file and look for Nautilus emblem
 metadata and if there are emblems use tdbtool to write Thunar metadata
 for them. The emblems will be merged with existing Thunar emblems.
