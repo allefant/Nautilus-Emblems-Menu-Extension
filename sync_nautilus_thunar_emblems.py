@@ -21,7 +21,7 @@ If you know a better way to set Thunar metadata please mail to
 ubuntu@allefant.com
 
 """
-import sys, os, argparse, subprocess
+import sys, os, argparse, subprocess, time
 from gi.repository import Gio as gio
 
 THUNAR_METADATA = "~/.cache/Thunar/metafile.tdb"
@@ -82,6 +82,13 @@ def parse(d, r):
     for f in os.listdir(d):
         name = os.path.join(d, f)
         
+        t = time.time()
+        if t > thunar.time + 5:
+            thunar.time = t
+            print("\r%d files searched for emblems so far..." % thunar.counter)
+        
+        thunar.counter += 1
+        
         nautilus_emblems = read_nautilus_emblems(name)
         thunar_emblems = read_thunar_emblems(name)
         if nautilus_emblems or thunar_emblems:
@@ -111,6 +118,8 @@ def main():
     class T: pass
     thunar = T()
     thunar.meta = os.path.expanduser(THUNAR_METADATA)
+    thunar.time = time.time()
+    thunar.counter = 0
     
     for d in args.directories:
         if not os.path.isdir(d): continue
