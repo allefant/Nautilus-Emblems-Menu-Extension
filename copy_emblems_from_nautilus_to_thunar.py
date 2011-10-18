@@ -1,5 +1,5 @@
-# By ubuntu@allefant.com, October 2011. Do with it what you want.
 #!/usr/bin/env python3
+# By ubuntu@allefant.com, October 2011. Do with it what you want.
 """
 This is a quick script to one-way sync emblems from Nautilus to Thunar.
 
