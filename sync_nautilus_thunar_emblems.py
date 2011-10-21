@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # By ubuntu@allefant.com, October 2011. Do with it what you want.
 """
-This is a quick script to one-way sync emblems from Nautilus to Thunar.
+This is a quick script to sync emblems between Nautilus to Thunar.
 
 Dependencies:
 - python3 (with python3-gobject bindings)
@@ -85,8 +85,9 @@ def parse(d, r):
         t = time.time()
         if t > thunar.time + 5:
             thunar.time = t
-            print("\r%d files searched for emblems so far..." % thunar.counter)
-        
+            print("\r%d files searched for emblems so far..." %
+				thunar.counter)
+
         thunar.counter += 1
         
         nautilus_emblems = read_nautilus_emblems(name)
@@ -94,10 +95,12 @@ def parse(d, r):
         if nautilus_emblems or thunar_emblems:
             new_emblems = set(nautilus_emblems + thunar_emblems)
             if new_emblems != set(thunar_emblems):
-                print("New Thunar emblems for " + name + ": " + ", ".join(new_emblems))
+                print("New Thunar emblems for " + name + ": " +
+					", ".join(new_emblems))
                 set_thunar_emblems(name, new_emblems)
             if new_emblems != set(nautilus_emblems):
-                print("New Nautilus emblems for " + name + ": " + ", ".join(new_emblems))
+                print("New Nautilus emblems for " + name + ": " +
+					", ".join(new_emblems))
                 set_nautilus_emblems(name, new_emblems)
         
         if r and os.path.isdir(name):
@@ -106,7 +109,8 @@ def parse(d, r):
 def main():
     global thunar
 
-    parser = argparse.ArgumentParser("Synchronize Nautilus and Thunar emblems.")
+    parser = argparse.ArgumentParser(
+		"Synchronize Nautilus and Thunar emblems.")
     parser.add_argument("directories", nargs = "+",
         help = "Emblems for all files in the specified directories " +
             "(but not the directories themselves) " +
