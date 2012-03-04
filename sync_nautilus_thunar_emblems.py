@@ -21,7 +21,7 @@ If you know a better way to set Thunar metadata please mail to
 ubuntu@allefant.com
 
 """
-import sys, os, argparse, subprocess, time
+import sys, os, argparse, subprocess, time, glob
 from gi.repository import Gio as gio
 
 THUNAR_METADATA = "~/.cache/Thunar/metafile.tdb"
@@ -111,12 +111,20 @@ def main():
 
     parser = argparse.ArgumentParser(
 		"Synchronize Nautilus and Thunar emblems.")
-    parser.add_argument("directories", nargs = "+",
+    parser.add_argument("directories", nargs = "*",
         help = "Emblems for all files in the specified directories " +
             "(but not the directories themselves) " +
             "will be synchronized.")
     parser.add_argument("--recursive", "-r", action = "store_true",
         help = "Descent into subdirectories.")
+    parser.add_argument("--get", "-g",
+        help = "Get the (comma separated) emblems for the given file.")
+    parser.add_argument("--set", "-s", nargs = 2,
+        help = "Set the (comma separated) emblems for the given file.")
+    parser.add_argument("--rename", "-n",
+        help = "If you renamed/moved a folder, cd into it then give the path " +
+        "to the old location. Emblems will be fixed.")
+        
     args = parser.parse_args()
 
     class T: pass
@@ -124,7 +132,25 @@ def main():
     thunar.meta = os.path.expanduser(THUNAR_METADATA)
     thunar.time = time.time()
     thunar.counter = 0
+
+    if args.get:
+        d = os.path.abspath(args.get)
+        print(",".join(read_thunar_emblems(d)))
+
+    if args.set:
+        d = os.path.abspath(args.set[0])
+        e = args.set[1].split(",")
+        set_thunar_emblems(d, e)
     
+    if args.rename:
+        for f in glob.glob("*"):
+            path = os.path.abspath(f)
+            old_path = os.path.abspath(os.path.join(args.rename, f))
+            old_emblems = read_thunar_emblems(old_path)
+            emblems = read_thunar_emblems(old_path)
+            emblems = list(set(emblems + old_emblems))
+            set_thunar_emblems(path, emblems)
+
     for d in args.directories:
         if not os.path.isdir(d): continue
         parse(os.path.abspath(d), args.recursive)
