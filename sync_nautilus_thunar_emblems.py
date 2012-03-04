@@ -14,11 +14,13 @@ metadata and if there are emblems use tdbtool to write Thunar metadata
 for them. The emblems will be merged with existing Thunar emblems.
 
 FIXME:
-Any other Thunar metadata on affected file will be destroyed.
+Any other Thunar metadata on affected files will be destroyed.
 
-If you know a better way to set Thunar metadata please mail to
+If you know a better way to set Thunar metadata please add an issue at
 
-ubuntu@allefant.com
+https://github.com/allefant/Nautilus-Emblems-Menu-Extension
+
+or simply mail to ubuntu@allefant.com
 
 """
 import sys, os, argparse, subprocess, time, glob
@@ -146,7 +148,7 @@ def main():
         for f in glob.glob("*"):
             path = os.path.abspath(f)
             old_path = os.path.abspath(os.path.join(args.rename, f))
-            old_emblems = read_thunar_emblems(old_path)
+            old_emblems = read_thunar_emblems(path)
             emblems = read_thunar_emblems(old_path)
             emblems = list(set(emblems + old_emblems))
             set_thunar_emblems(path, emblems)
