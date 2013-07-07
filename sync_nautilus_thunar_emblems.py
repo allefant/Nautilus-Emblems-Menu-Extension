@@ -42,7 +42,15 @@ def read_nautilus_emblems(path):
         s = "metadata::emblems:"
         if row.startswith(s):
             row = row[len(s):].strip("[ ]")
-            emblems = ["emblem-" + x.strip() for x in row.split(",")]
+            emblems = []
+            for x in row.split(","):
+                x = x.strip()
+                if not x: continue
+                if x.startswith("emblem-"):
+                    emblems.append(x)
+                else:
+                    if thunar.nautilus_style:
+                        emblems.append("emblem-" + x)
             return emblems
     return []
         
@@ -62,6 +70,10 @@ def read_thunar_emblems(path):
     if data.find("\x00") >= 0:
         data = data[:data.find("\x00")]
     data = data.split(";")
+
+    # hack since I seem to have spurious "emblem-" entries
+    data = [x for x in data if x != "emblem-"]
+
     return data
 
 def set_thunar_emblems(path, emblems):
@@ -73,12 +85,27 @@ def set_thunar_emblems(path, emblems):
     data += bytes(pad)
 
     data = data.replace(b"\x00", b"\\00")
-    out = run(["tdbtool", thunar.meta, "store", f.get_uri(), data])
+    if thunar.no_write:
+        print("Would set thunar emblem " + data.decode("utf8"))
+    else:
+        out = run(["tdbtool", thunar.meta, "store", f.get_uri(), data])
 
 def set_nautilus_emblems(path, emblems):
-    emblems = [x[len("emblem-"):] for x in emblems]
-    out = run(["gvfs-set-attribute", "-t", "stringv",
-        path, "metadata::emblems"] + emblems)
+    emblems2 = []
+    for x in emblems:
+        if x.startswith("emblem-"):
+            if thunar.nautilus_style:
+                x = x[len("emblem-"):]
+        emblems2 += [x]
+        
+    if thunar.no_write:
+        print("Would set nautilus emblem " + str(emblems2))
+    else:
+        out = run(["gvfs-set-attribute", "-t", "stringv",
+            path, "metadata::emblems"] + emblems2)
+
+stat_nautilus = {}
+stat_thunar = {}
 
 def parse(d, r):
     for f in os.listdir(d):
@@ -94,7 +121,14 @@ def parse(d, r):
         
         nautilus_emblems = read_nautilus_emblems(name)
         thunar_emblems = read_thunar_emblems(name)
-        if nautilus_emblems or thunar_emblems:
+
+        for e in nautilus_emblems:
+            stat_nautilus[e] = stat_nautilus.get(e, 0) + 1
+
+        for e in thunar_emblems:
+            stat_thunar[e] = stat_thunar.get(e, 0) + 1
+        
+        if (not thunar.statistics) and (nautilus_emblems or thunar_emblems):
             new_emblems = set(nautilus_emblems + thunar_emblems)
             if new_emblems != set(thunar_emblems):
                 print("New Thunar emblems for " + name + ": " +
@@ -126,6 +160,12 @@ def main():
     parser.add_argument("--rename", "-n",
         help = "If you renamed/moved a folder, cd into it then give the path " +
         "to the old location. Emblems will be fixed.")
+    parser.add_argument("--nautilus-style", "-t", action = "store_true",
+        help = "Will write nautilus style emblems.")
+    parser.add_argument("--no-write", "-N", action = "store_true",
+        help = "Don't actually modify anything.")
+    parser.add_argument("--statistics", "-S", action = "store_true",
+        help = "Analyze the found emblems.")
         
     args = parser.parse_args()
 
@@ -134,6 +174,9 @@ def main():
     thunar.meta = os.path.expanduser(THUNAR_METADATA)
     thunar.time = time.time()
     thunar.counter = 0
+    thunar.nautilus_style = args.nautilus_style
+    thunar.no_write = args.no_write
+    thunar.statistics = args.statistics
 
     if args.get:
         d = os.path.abspath(args.get)
@@ -156,6 +199,15 @@ def main():
     for d in args.directories:
         if not os.path.isdir(d): continue
         parse(os.path.abspath(d), args.recursive)
+
+        if thunar.statistics:
+            print("Nautilus/Thunar 4.10+:")
+            for k in sorted(stat_nautilus.keys()):
+                print("%s: %d" % (k, stat_nautilus[k]))
+            print
+            print("Thunar 4.8:")
+            for k in sorted(stat_thunar.keys()):
+                print("%s: %d" % (k, stat_thunar[k]))
 
 if __name__ == "__main__":
     main()
